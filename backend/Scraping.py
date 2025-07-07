@@ -27,7 +27,7 @@ def scrape():
         maximal_price_limit = int(maximal_price_limit)
     except (ValueError, TypeError):
         return jsonify({"error": "Los límites de precio deben ser números válidos"}), 400
-
+    #Llamar al metodo de Scraping
     productos = hacer_scraping(product_name, minimal_price_limit, maximal_price_limit)
     with open('./frontend/public/productosV1.json', 'w', encoding='utf-8') as jsonfile:
         json.dump(productos, jsonfile, ensure_ascii=False, indent=4)
@@ -76,15 +76,35 @@ def hacer_scraping(product_name, minimal_price_limit, maximal_price_limit):
     print(f"Variables:\nproduct_name: {product_name}\tminimal_price_limit: {minimal_price_limit}\tmaximal_price_limit: {maximal_price_limit}")
     headers = {'User-Agent': 'Mozilla/5.0'}
     products = []
+    #Separar por comas
+    buscando = [item.strip() for item in product_name.split(",") if item.strip()]
+    for producto in buscando:
+        products += extraerInfo(producto, minimal_price_limit, maximal_price_limit, headers)
+        
 
-    for repeticion in range(10):
+    print("Productos encontrados:", len(products))
+    return products
+
+def extraerInfo(product_name, minimal_price_limit, maximal_price_limit, headers):
+    products=[]
+    print("///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////")
+    print("Extrayendo información de: "+product_name)
+    print("///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////")
+    
+    for repeticion in range(30):
         rango = f'_Desde_{repeticion * 50 + 1}' if repeticion > 0 else ''
-        url = (
-            f'https://listado.mercadolibre.com.mx/{product_name.replace(" ", "-")}{rango}'
-            f'_OrderId_PRICE_PriceRange_{minimal_price_limit}-{maximal_price_limit}'
-            f'_ITEM*CONDITION_2230284_NoIndex_True_SHIPPING*ORIGIN_10215068'
-        )
-
+        if minimal_price_limit == "0" and maximal_price_limit == "0":
+            url = (
+                f'https://listado.mercadolibre.com.mx/{product_name.replace(" ", "-")}{rango}_OrderId_PRICE'
+                f'ITEM*CONDITION_2230284_NoIndex_True_SHIPPING*ORIGIN_10215068'
+            )
+        else:
+            url = (
+                f'https://listado.mercadolibre.com.mx/{product_name.replace(" ", "-")}{rango}_OrderId_PRICE'
+                f'_PriceRange_{minimal_price_limit}-{maximal_price_limit}_'
+                f'ITEM*CONDITION_2230284_NoIndex_True_SHIPPING*ORIGIN_10215068'
+            )
+        print("URL usada: "+url)
         response = requests.get(url, headers=headers)
         if(response.status_code != 200):
             print("Error 404, terminando proceso")
@@ -105,9 +125,9 @@ def hacer_scraping(product_name, minimal_price_limit, maximal_price_limit):
                     'Enlace': link_tag['href'],
                     'Caracteristicas': {}
                 })
-
-    print("Productos encontrados:", len(products))
     return products
+
+    #termina Scraping
 
 
 
