@@ -3,15 +3,20 @@ export async function filtrarProductos(form, setProductos, setLoading, setError)
     setError(false);
     setProductos([]);
 
+
+
+    const inputMin = form.inputMin == '' ? '0' : form.inputMin;
+    const inputMax = form.inputMax == '' ? '0' : form.inputMax;
+
     const payloadScrape = {
         product_name: form.inputSearch,
-        minimal_price_limit: form.inputMin,
-        maximal_price_limit: form.inputMax
+        minimal_price_limit: inputMin,
+        maximal_price_limit: inputMax
     };
 
     console.log("Entra función filtrar")
-    console.log("Datos:" + form.inputSearch + "\t" + form.inputSearch + "\t" + form.inputSearch)
-    if (form.inputSearch !== null && form.inputSearch !== null && form.inputSearch !== null) {
+
+    if (form.inputSearch !== null) {
         try {
             // PRIMERA PETICIÓN: Obtener productos sin filtrar
             const resScrape = await fetch('http://localhost:5000/scrape', {

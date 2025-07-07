@@ -49,9 +49,9 @@ export default {
     return {
       tab: 'resumen',
       form: {
-        inputSearch: 'Tarjeta grafica',
-        inputMin: '2500',
-        inputMax: '2550'
+        inputSearch: 'Tarjeta grafica NVIDIA 4060',
+        inputMin: '',
+        inputMax: ''
       },
       productos: [],
       loading: false,
